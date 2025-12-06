@@ -24,8 +24,4 @@ rm -f "$SERVICE_PATH"
 systemctl daemon-reexec
 systemctl daemon-reload
 
-echo "🧹 Removing MSS iptables rules..."
-
-iptables -t mangle -D FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-
 echo "${GREEN}✅ Uninstalled. You may delete ${YELLOW}$SERVICE_DIR${NC} if desired."
