@@ -25,7 +25,7 @@ cat << EOF > "$SERVICE_DIR/custom_dyndns.sh"
 printf "Checking if we should change $hostname IP resolution\n"
 
 currentIp=\$(curl 'api.ipify.org' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
-resolvedIp=\$(nslookup $hostname ns2.afraid.org | awk '/^Address: / { print $2 }')
+resolvedIp=\$(nslookup $hostname ns2.afraid.org | awk '/^Address: / { print \$2 }')
 
 printf "Current IP : \$currentIp\nResolved IP : \$resolvedIp\n"
 
