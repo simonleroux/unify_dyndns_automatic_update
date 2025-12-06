@@ -11,8 +11,6 @@ INTERVAL_MIN="${1:-5}"
 hostname="$2"
 directUrlUpdate="$3"
 
-printf "Checking if we should change $hostname IP resolution\n"
-
 mkdir -p "$SERVICE_DIR"
 
 GREEN="\033[1;32m"
