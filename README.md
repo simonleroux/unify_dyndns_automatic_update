@@ -9,7 +9,7 @@ Automatically update freeDNS on UniFi gateways. This is needed for CGNAT Unify d
 - 🛡️ Automatically check and update freeDNS
 - 🔁 Runs once at boot and every N minutes (default: 5)
 - 🧩 Integrates via `systemd` service and timer
-- 🧼 Fully contained in `/data/STETNET/dyndns-cgnat`
+- 🧼 Fully contained in `/data/STETNET/freedns_update`
 - 🔄 Supports uninstall and safe re-install
 - 🧠 Designed and tested for UniFi OS Version >4.3.9 on UCG ULTRA
 

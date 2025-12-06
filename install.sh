@@ -1,5 +1,5 @@
 #!/bin/sh
-# STETNET freeDNS Installer with customizable interval
+# freeDNS Installer with customizable interval
 
 SERVICE_DIR="/data/STETNET/freedns_update"
 SERVICE_NAME="freedns_update.service"
@@ -11,7 +11,7 @@ INTERVAL_MIN="${1:-5}"
 hostname="$2"
 directUrlUpdate="$3"
 
-printf "Checking if we should change $DIRECTURLUPDATE IP resolution\n"
+printf "Checking if we should change $hostname IP resolution\n"
 
 mkdir -p "$SERVICE_DIR"
 
@@ -24,7 +24,7 @@ echo "🔧 Writing FreeDNS script..."
 cat << 'EOF' > "$SERVICE_DIR/custom_dyndns.sh"
 #!/bin/bash
 
-printf "Checking if we should change $hostname IP resolution\n"
+printf "Checking if we should change "$hostname" IP resolution\n"
 
 currentIp=$(curl 'https://api.ipify.org?format=json' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 resolvedIp=$(nslookup $hostname ns2.afraid.org | awk '/^Address: / { print $2 }')
