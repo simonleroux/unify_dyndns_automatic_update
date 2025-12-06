@@ -19,20 +19,23 @@ YELLOW="\033[1;33m"
 NC="\033[0m" # No Color
 
 echo "🔧 Writing FreeDNS script..."
-cat <<'EOF' > "$SERVICE_DIR/custom_dyndns.sh"
+cat << EOF > "$SERVICE_DIR/custom_dyndns.sh"
 #!/bin/bash
-printf "Checking if we should change \$hostname IP resolution\n"
-currentIp=$(curl -s https://api.ipify.org?format=json | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
-resolvedIp=$(nslookup \$hostname ns2.afraid.org | awk '/^Address: / { print \$2 }')
+
+printf "Checking if we should change $hostname IP resolution\n"
+
+currentIp=$(curl 'api.ipify.org' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
+resolvedIp=$(nslookup $hostname ns2.afraid.org | awk '/^Address: / { print $2 }')
 
 printf "Current IP : \$currentIp\nResolved IP : \$resolvedIp\n"
 
 if [[ "\$currentIp" != "\$resolvedIp" ]]; then
-  printf "IP addresses do not match, need to update value at freedns\n"
-  curl \$directUrlUpdate
+    printf "IP addresses do not match, need to update value at freedns\n"
+    curl $directUrlUpdate
 else
-  printf "IP addresses matches, exiting\n"
+    printf "IP addresses matches, exiting\n"
 fi
+
 exit 0
 EOF
 
