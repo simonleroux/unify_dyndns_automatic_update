@@ -88,25 +88,25 @@ echo "\n🔍 ${YELLOW}STETNET Overall FreeDNS Status${NC}"
 echo "---------------------------------------"
 
 echo "\n📦 Service Status:"
-if systemctl is-active --quiet $SERVICE_NAME; then
-  echo "${GREEN}✅ $SERVICE_NAME is active${NC}"
+if systemctl is-active --quiet freedns_update.service; then
+  echo "${GREEN}✅ freedns_update.service is active${NC}"
 else
-  echo "${YELLOW}ℹ️ $SERVICE_NAME is currently inactive (normal)."
-  echo "   It will be triggered automatically by $TIMER_NAME every N minutes.${NC}"
+  echo "${YELLOW}ℹ️ freedns_update.service is currently inactive (normal)."
+  echo "   It will be triggered automatically by freedns_update.timer every N minutes.${NC}"
 fi
 
 echo "\n⏱️ Timer Status:"
-if systemctl is-active --quiet $TIMER_NAME; then
-  echo "${GREEN}✅ $TIMER_NAME is active${NC}"
+if systemctl is-active --quiet freedns_update.timer; then
+  echo "${GREEN}✅ freedns_update.timer is active${NC}"
 else
-  echo "${RED}❌ $TIMER_NAME is inactive${NC}"
+  echo "${RED}❌ freedns_update.timer is inactive${NC}"
 fi
 
 echo "\n🗓️ Next Timer Trigger:"
 systemctl list-timers --all | grep freedns_update || echo "${YELLOW}⚠️ Timer not scheduled${NC}"
 
 echo "\n📝 Last Service Run Log:"
-journalctl -u $SERVICE_NAME --no-pager -n 5
+journalctl -u freedns_update.service --no-pager -n 5
 EOF
 
 chmod +x "$SERVICE_DIR/status.sh"
