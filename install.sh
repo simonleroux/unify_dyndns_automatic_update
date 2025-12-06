@@ -11,4 +11,4 @@ INTERVAL_MIN="${1:-5}"
 HOSTNAME="$2"
 DIRECTURLUPDATE="$3"
 
-printf "Checking if we should change $HOSTNAME IP resolution\n"
+printf "Checking if we should change $DIRECTURLUPDATE IP resolution\n"
