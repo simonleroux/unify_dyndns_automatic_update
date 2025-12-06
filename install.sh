@@ -106,7 +106,7 @@ echo "\n🗓️ Next Timer Trigger:"
 systemctl list-timers --all | grep freedns_update || echo "${YELLOW}⚠️ Timer not scheduled${NC}"
 
 echo "\n📝 Last Service Run Log:"
-journalctl -u freedns_update.service --no-pager -n 5
+journalctl -u freedns_update.service --no-pager -n 25
 EOF
 
 chmod +x "$SERVICE_DIR/status.sh"
