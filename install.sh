@@ -139,7 +139,7 @@ if systemctl is-active --quiet automatic_update.service; then
   echo "${GREEN}✅ automatic_update.service is active${NC}"
 else
   echo "${YELLOW}ℹ️ automatic_update.service is currently inactive (normal)."
-  echo "   It will be triggered automatically by automatic_update.timer every N minutes.${NC}"
+  echo "   It will be triggered automatically by automatic_update.timer every $INTERVAL_MIN minutes.${NC}"
 fi
 
 echo "\n⏱️ Timer Status:"
