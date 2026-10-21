@@ -20,7 +20,7 @@ Automatically update freeDNS on UniFi gateways. This is needed for CGNAT Unify d
 To install with a 5-minute interval (default):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_dyndns_automatic_update/main/install.sh | sh -s -- 5 hostname directUrlUpdate
+curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_dyndns_automatic_update/main/install.sh | sh -s -- 1 hostname directUrlUpdate CF_token CF_zone CF_recors
 ```
 
 Replace `5` with your desired interval in minutes.
