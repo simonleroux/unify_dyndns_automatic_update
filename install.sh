@@ -89,7 +89,7 @@ fi
 exit 0
 EOF
 
-chmod +x "$SERVICE_DIR/custom_dyndns.sh"
+chmod +x "$SERVICE_DIR/automatic_update.sh"
 
 echo "🔧 Creating systemd service..."
 cat << EOF > "$SERVICE_DIR/$SERVICE_NAME"
@@ -101,7 +101,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=$SERVICE_DIR/custom_dyndns.sh
+ExecStart=$SERVICE_DIR/automatic_update.sh
 RemainAfterExit=no
 
 [Install]
