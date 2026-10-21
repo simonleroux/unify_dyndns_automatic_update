@@ -1,9 +1,9 @@
 #!/bin/sh
 # freeDNS Uninstaller
 
-SERVICE_DIR="/data/STETNET/freedns_update"
-SERVICE_NAME="freedns_update.service"
-TIMER_NAME="freedns_update.timer"
+SERVICE_DIR="/data/STETNET/automatic_update"
+SERVICE_NAME="automatic_update.service"
+TIMER_NAME="automatic_update.timer"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 TIMER_PATH="/etc/systemd/system/$TIMER_NAME"
 
