@@ -37,7 +37,6 @@ CF_API_TOKEN=$cloudflareAPIToken
 CF_ZONE_ID=$cloudflareZoneId
 CF_RECORD_ID=$cloudflareRecordId
 
-
 # ==========================================
 # CHECK IP RESOLUTION
 # ==========================================
@@ -123,7 +122,7 @@ WantedBy=timers.target
 EOF
 
 echo "📄 Adding status.sh..."
-cat << 'EOF' > "$SERVICE_DIR/status.sh"
+cat << EOF > "$SERVICE_DIR/status.sh"
 #!/bin/sh
 
 GREEN="\033[1;32m"
