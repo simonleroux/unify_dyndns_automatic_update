@@ -22,7 +22,7 @@ YELLOW="\033[1;33m"
 NC="\033[0m" # No Color
 
 echo "🔧 Writing Leroux Automatic update script..."
-cat << EOF > "$SERVICE_DIR/automatic_update.sh"
+cat << 'EOF' > "$SERVICE_DIR/automatic_update.sh"
 #!/bin/bash
 
 # ==========================================
@@ -139,7 +139,7 @@ if systemctl is-active --quiet automatic_update.service; then
   echo "${GREEN}✅ automatic_update.service is active${NC}"
 else
   echo "${YELLOW}ℹ️ automatic_update.service is currently inactive (normal)."
-  echo "   It will be triggered automatically by automatic_update.timer every 1 minutes.${NC}"
+  echo "   It will be triggered automatically by automatic_update.timer every $INTERVAL_MIN minutes.${NC}"
 fi
 
 echo "\n⏱️ Timer Status:"
