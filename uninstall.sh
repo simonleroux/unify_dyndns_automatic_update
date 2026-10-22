@@ -1,5 +1,5 @@
 #!/bin/sh
-# freeDNS Uninstaller
+# automatic_update Uninstaller
 
 SERVICE_DIR="/data/STETNET/automatic_update"
 SERVICE_NAME="automatic_update.service"
