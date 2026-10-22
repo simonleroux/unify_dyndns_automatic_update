@@ -22,64 +22,64 @@ YELLOW="\033[1;33m"
 NC="\033[0m" # No Color
 
 echo "🔧 Writing Leroux Automatic update script..."
-cat << 'EOF' > "$SERVICE_DIR/automatic_update.sh"
+cat << EOF > "$SERVICE_DIR/automatic_update.sh"
+cat << EOF > "$SERVICE_DIR/automatic_update.sh"
 #!/bin/bash
 
 # ==========================================
-# CONFIGURATION
+# CONFIGURATION (Baked in from parent script)
 # ==========================================
-
-hostname=$hostname
-nextdnsUrl=$nextDNSUrlUpdate
+hostname="$hostname"
+nextdnsUrl="$nextDNSUrlUpdate"
 
 # Cloudflare API Credentials
-CF_API_TOKEN=$cloudflareAPIToken
-CF_ZONE_ID=$cloudflareZoneId
-CF_RECORD_ID=$cloudflareRecordId
+CF_API_TOKEN="$cloudflareAPIToken"
+CF_ZONE_ID="$cloudflareZoneId"
+CF_RECORD_ID="$cloudflareRecordId"
 
 # ==========================================
 # CHECK IP RESOLUTION
 # ==========================================
 printf "Checking if we should change \$hostname IP resolution\n"
 
-# Get current public WAN IP
-currentIp=$(curl -s 'api.ipify.org' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
+# Get current public WAN IP (Escaped to run inside the final script)
+currentIp=\$(curl -s 'api.ipify.org' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 
-# Check existing record IP directly via Cloudflare's public resolver
-resolvedIp=$(nslookup $hostname 1.1.1.1 | awk '/^Address: / { print $2 }')
+# Check existing record IP directly via Cloudflare's public resolver (Escaped)
+resolvedIp=\$(nslookup \$hostname 1.1.1.1 | awk '/^Address: / { print \$2 }')
 
 printf "Current IP : \$currentIp\nResolved IP : \$resolvedIp\n"
 
 # ==========================================
 # UPDATE IF MISMATCHED
 # ==========================================
-if [ "$currentIp" != "$resolvedIp" ]; then
+if [ "\$currentIp" != "\$resolvedIp" ]; then
     printf "IP addresses do not match, initiating updates...\n"
     
     # 1. Update NextDNS
     printf "Updating NextDNS...\n"
-    curl -s "$nextdnsUrl"
+    curl -s "\$nextdnsUrl"
     printf "\n"
 
-    # 2. Update Cloudflare DNS
+    # 2. Update Cloudflare DNS (Escaped script variables, left config variables as-is)
     printf "Updating Cloudflare...\n"
-    cfResponse=$(curl -s --request PATCH \
-      --url "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records/$CF_RECORD_ID" \
-      --header "Authorization: Bearer $CF_API_TOKEN" \
-      --header "Content-Type: application/json" \
+    cfResponse=\$(curl -s --request PATCH \\
+      --url "https://api.cloudflare.com/client/v4/zones/\$CF_ZONE_ID/dns_records/\$CF_RECORD_ID" \\
+      --header "Authorization: Bearer \$CF_API_TOKEN" \\
+      --header "Content-Type: application/json" \\
       --data "{
-        \"type\": \"A\",
-        \"name\": \"$hostname\",
-        \"content\": \"$currentIp\",
-        \"proxied\": false
+        \\\"type\\\": \\\"A\\\",
+        \\\"name\\\": \\\"\$hostname\\\",
+        \\\"content\\\": \\\"\$currentIp\\\",
+        \\\"proxied\\\": false
       }")
 
     # Check Cloudflare Response
-    if echo "$cfResponse" | grep -q '"success":true'; then
+    if echo "\$cfResponse" | grep -q '"success":true'; then
         printf "Cloudflare updated successfully.\n"
     else
         printf "Error: Cloudflare update failed.\n"
-        printf "API Response: $cfResponse\n"
+        printf "API Response: \$cfResponse\n"
     fi
 else
     printf "IP addresses match, exiting\n"
