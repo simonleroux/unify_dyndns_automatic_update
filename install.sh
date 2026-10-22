@@ -66,7 +66,7 @@ if [ "$currentIp" != "$resolvedIp" ]; then
     # 2. Update Cloudflare DNS
     printf "Updating Cloudflare...\n"
     cfResponse=$(curl -s --request PATCH \
-      --url "https://cloudflare.com" \
+      --url "https://cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records/$CF_RECORD_ID"" \
       --header "Authorization: Bearer $CF_API_TOKEN" \
       --header "Content-Type: application/json" \
       --data "{
