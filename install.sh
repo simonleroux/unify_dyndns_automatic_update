@@ -23,7 +23,6 @@ NC="\033[0m" # No Color
 
 echo "🔧 Writing Leroux Automatic update script..."
 cat << EOF > "$SERVICE_DIR/automatic_update.sh"
-cat << EOF > "$SERVICE_DIR/automatic_update.sh"
 #!/bin/bash
 
 # ==========================================
