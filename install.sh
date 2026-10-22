@@ -132,29 +132,42 @@ RED="\033[1;31m"
 YELLOW="\033[1;33m"
 NC="\033[0m"
 
-echo "\n🔍 ${YELLOW}STETNET Overall Automatic updater Status${NC}"
+echo ""
+echo "🔍 \${YELLOW}STETNET Overall Automatic updater Status\${NC}"
 echo "---------------------------------------"
 
-echo "\n📦 Service Status:"
+echo ""
+echo "📦 Service Status:"
 if systemctl is-active --quiet automatic_update.service; then
-  echo "${GREEN}✅ automatic_update.service is active${NC}"
+  echo "\${GREEN}✅ automatic_update.service is active\${NC}"
 else
-  echo "${YELLOW}ℹ️ automatic_update.service is currently inactive (normal)."
-  echo "   It will be triggered automatically by automatic_update.timer every $INTERVAL_MIN minutes.${NC}"
+  echo "\${YELLOW}ℹ️ automatic_update.service is currently inactive (normal)."
+  echo "   It will be triggered automatically by automatic_update.timer every $INTERVAL_MIN minutes.\${NC}"
 fi
 
-echo "\n⏱️ Timer Status:"
+echo ""
+echo "⏱️ Timer Status:"
 if systemctl is-active --quiet automatic_update.timer; then
-  echo "${GREEN}✅ automatic_update.timer is active${NC}"
+  echo "\${GREEN}✅ automatic_update.timer is active\${NC}"
 else
-  echo "${RED}❌ automatic_update.timer is inactive${NC}"
+  echo "\${RED}❌ automatic_update.timer is inactive\${NC}"
 fi
 
-echo "\n🗓️ Next Timer Trigger:"
-systemctl list-timers --all | grep automatic_update || echo "${YELLOW}⚠️ Timer not scheduled${NC}"
+echo ""
+echo "🗓️ Next Timer Trigger:"
+systemctl list-timers --all | grep automatic_update || echo "\${YELLOW}⚠️ Timer not scheduled\${NC}"
 
-echo "\n📝 Last Service Run Log:"
-journalctl -u automatic_update.service --no-pager -n 5
+echo ""
+echo "📝 Last Service Run Log:"
+# Get the ID of the most recent execution
+INVOCATION_ID=\$(systemctl show -p InvocationID --value automatic_update.service)
+
+if [ -n "\$INVOCATION_ID" ]; then
+    # Show only the logs for that specific execution ID
+    journalctl _SYSTEMD_INVOCATION_ID=\$INVOCATION_ID --no-pager
+else
+    echo "\${YELLOW}No logs found for the last execution.\${NC}"
+fi
 EOF
 
 chmod +x "$SERVICE_DIR/status.sh"
