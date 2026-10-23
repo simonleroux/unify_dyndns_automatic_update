@@ -55,7 +55,7 @@ echo "✅ Found Peer Public Key: $PUBLIC_KEY"
 echo "✅ Found Endpoint Port: $ENDPOINT_PORT"
 
 echo ""
-echo "🌐 Step 2: Endpoint Domain (e.g., vpn.simonleroux.ca)"
+echo "🌐 Step 2: Endpoint Domain (e.g., vpn.example.com)"
 if [ -z "$ENDPOINT_DOMAIN" ]; then
     read -p "    Enter domain: " ENDPOINT_DOMAIN < /dev/tty
 fi
