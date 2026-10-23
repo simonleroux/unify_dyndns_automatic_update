@@ -140,7 +140,7 @@ systemctl start "$SERVICE_NAME"
 systemctl start "$TIMER_NAME"
 
 echo "📄 Adding status.sh..."
-cat << 'STATUSEOF' > "$SERVICE_DIR/status.sh"
+cat << EOF > "$SERVICE_DIR/status.sh"
 #!/bin/sh
 GREEN="\033[1;32m"
 RED="\033[1;31m"
@@ -178,7 +178,7 @@ echo ""
 echo "🔧 WireGuard Status:"
 wg show
 echo ""
-STATUSEOF
+EOF
 chmod +x "$SERVICE_DIR/status.sh"
 
 echo "✅ Installed WireGuard Failover check every $INTERVAL_SEC seconds."
