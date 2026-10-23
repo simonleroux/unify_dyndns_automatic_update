@@ -11,11 +11,11 @@ TIMER_PATH="/etc/systemd/system/$TIMER_NAME"
 echo "🔧 WireGuard Failover Installer"
 echo "------------------------------"
 
-read -p "Enter WireGuard Interface (e.g., wgclt2): " INTERFACE
-read -p "Enter Peer Public Key: " PUBLIC_KEY
-read -p "Enter Endpoint Domain (e.g., vpn.example.com): " ENDPOINT_DOMAIN
-read -p "Enter Endpoint Port: " ENDPOINT_PORT
-read -p "Enter Check Interval in Seconds (default 10): " INTERVAL_SEC
+read -p "Enter WireGuard Interface (e.g., wgclt2): " INTERFACE < /dev/tty
+read -p "Enter Peer Public Key: " PUBLIC_KEY < /dev/tty
+read -p "Enter Endpoint Domain (e.g., vpn.example.com): " ENDPOINT_DOMAIN < /dev/tty
+read -p "Enter Endpoint Port: " ENDPOINT_PORT < /dev/tty
+read -p "Enter Check Interval in Seconds (default 10): " INTERVAL_SEC < /dev/tty
 INTERVAL_SEC=${INTERVAL_SEC:-10}
 
 mkdir -p "$SERVICE_DIR"
@@ -67,6 +67,9 @@ After=network-online.target
 [Service]
 Type=oneshot
 ExecStart=$SERVICE_DIR/wireguard-dns-resolver.sh
+
+[Install]
+WantedBy=multi-user.target
 EOF
 
 echo "⏲️ Creating systemd timer with $INTERVAL_SEC second interval..."

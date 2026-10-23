@@ -2,7 +2,7 @@
 # STETNET Unifi_scripts Uninstaller
 
 echo "⚠️ This will remove ALL STETNET services and scripts."
-read -p "Are you sure? [y/N]: " confirm
+read -p "Are you sure? [y/N]: " confirm < /dev/tty
 if [ "$confirm" != "y" ]; then
     echo "Aborting."
     exit 1
