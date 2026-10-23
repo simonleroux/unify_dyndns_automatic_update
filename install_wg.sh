@@ -139,4 +139,47 @@ systemctl enable "$TIMER_NAME"
 systemctl start "$SERVICE_NAME"
 systemctl start "$TIMER_NAME"
 
+echo "📄 Adding status.sh..."
+cat << 'STATUSEOF' > "$SERVICE_DIR/status.sh"
+#!/bin/sh
+GREEN="\033[1;32m"
+RED="\033[1;31m"
+YELLOW="\033[1;33m"
+NC="\033[0m"
+echo ""
+echo "\${YELLOW}🔍 STETNET WireGuard Failover Status\${NC}"
+echo "======================================="
+echo ""
+echo "📦 Service Status:"
+if systemctl is-active --quiet wg_failover.service; then
+  echo "\${GREEN}✅ wg_failover.service is active\${NC}"
+else
+  echo "\${YELLOW}ℹ️ wg_failover.service is inactive (normal)\${NC}"
+fi
+echo ""
+echo "⏱️ Timer Status:"
+if systemctl is-active --quiet wg_failover.timer; then
+  echo "\${GREEN}✅ wg_failover.timer is active\${NC}"
+else
+  echo "\${RED}❌ wg_failover.timer is inactive\${NC}"
+fi
+echo ""
+echo "🗓️ Next Timer Trigger:"
+systemctl list-timers --all | grep wg_failover
+echo ""
+echo "📝 Last Service Run Log:"
+last_run=\$(systemctl show -p ActiveEnterTimestamp --value wg_failover.service)
+if [ -n "\$last_run" ] && [ "\$last_run" != "n/a" ]; then
+    journalctl -u wg_failover.service --no-pager --since "\$last_run"
+else
+    echo "\${YELLOW}No logs found for the last execution.\${NC}"
+fi
+echo ""
+echo "🔧 WireGuard Status:"
+wg show
+echo ""
+STATUSEOF
+chmod +x "$SERVICE_DIR/status.sh"
+
 echo "✅ Installed WireGuard Failover check every $INTERVAL_SEC seconds."
+echo "📊 Check status with: sh $SERVICE_DIR/status.sh"
