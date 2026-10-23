@@ -48,12 +48,18 @@ while true; do
             echo "🚀 Installing with your configuration..."
             echo ""
             curl -fsSL "$REPO_URL/install_cloudflare.sh" -o "$TMP_DIR/install_cloudflare.sh" && sh "$TMP_DIR/install_cloudflare.sh" "$INTERVAL" "$HOSTNAME" "$NEXTDNS_URL" "$CF_TOKEN" "$CF_ZONE" "$CF_REC"
+            echo ""
+            read -p "Press Enter to return to menu..." < /dev/tty
             ;;
         2)
             curl -fsSL "$REPO_URL/install_wg.sh" -o "$TMP_DIR/install_wg.sh" && sh "$TMP_DIR/install_wg.sh"
+            echo ""
+            read -p "Press Enter to return to menu..." < /dev/tty
             ;;
         3)
             curl -fsSL "$REPO_URL/uninstall_all.sh" -o "$TMP_DIR/uninstall_all.sh" && sh "$TMP_DIR/uninstall_all.sh"
+            echo ""
+            read -p "Press Enter to return to menu..." < /dev/tty
             ;;
         4)
             exit 0
