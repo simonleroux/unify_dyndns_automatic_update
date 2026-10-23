@@ -18,7 +18,6 @@ echo "🔗 Step 1: WireGuard Interface"
 if [ -n "$AVAIL_INTERFACES" ]; then
     echo "    Available: $AVAIL_INTERFACES"
 fi
-echo "    Example: wgclt2"
 echo -n "    Enter interface name: "
 read INTERFACE < /dev/tty
 
