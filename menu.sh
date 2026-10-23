@@ -1,6 +1,10 @@
 #!/bin/sh
 # Unifi_scripts Main Menu
 
+REPO_URL="https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main"
+TMP_DIR="/tmp/stetnet_scripts"
+mkdir -p "$TMP_DIR"
+
 show_menu() {
     echo "====================================="
     echo "       STETNET Unifi Scripts         "
@@ -43,13 +47,13 @@ while true; do
             echo ""
             echo "🚀 Installing with your configuration..."
             echo ""
-            ./install_cloudflare.sh "$INTERVAL" "$HOSTNAME" "$NEXTDNS_URL" "$CF_TOKEN" "$CF_ZONE" "$CF_REC"
+            curl -fsSL "$REPO_URL/install_cloudflare.sh" -o "$TMP_DIR/install_cloudflare.sh" && sh "$TMP_DIR/install_cloudflare.sh" "$INTERVAL" "$HOSTNAME" "$NEXTDNS_URL" "$CF_TOKEN" "$CF_ZONE" "$CF_REC"
             ;;
         2)
-            ./install_wg.sh
+            curl -fsSL "$REPO_URL/install_wg.sh" -o "$TMP_DIR/install_wg.sh" && sh "$TMP_DIR/install_wg.sh"
             ;;
         3)
-            ./uninstall_all.sh
+            curl -fsSL "$REPO_URL/uninstall_all.sh" -o "$TMP_DIR/uninstall_all.sh" && sh "$TMP_DIR/uninstall_all.sh"
             ;;
         4)
             exit 0
