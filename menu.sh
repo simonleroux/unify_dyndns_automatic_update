@@ -3,6 +3,8 @@
 
 REPO_URL="https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main"
 TMP_DIR="/tmp/stetnet_scripts"
+CF_DIR="/data/STETNET/automatic_update"
+WG_DIR="/data/STETNET/wg_failover"
 mkdir -p "$TMP_DIR"
 
 show_menu() {
@@ -11,14 +13,56 @@ show_menu() {
     echo "====================================="
     echo "1) Install Automatic Cloudflare/NextDNS Update"
     echo "2) Install WireGuard Failover"
-    echo "3) Uninstall All STETNET scripts"
-    echo "4) Exit"
+    echo "3) Update installed scripts (keeps your settings)"
+    echo "4) Uninstall All STETNET scripts"
+    echo "5) Exit"
     echo "====================================="
+}
+
+# Read the value of a VAR="value" line from a generated file
+read_var() {
+    sed -n "s/^$2=\"\(.*\)\"\$/\1/p" "$1" | head -n1
+}
+
+update_installed() {
+    if [ -f "$CF_DIR/automatic_update.sh" ]; then
+        echo "🔄 Updating Cloudflare/NextDNS update (keeping settings)..."
+        cf_host=$(read_var "$CF_DIR/automatic_update.sh" hostname)
+        cf_nextdns=$(read_var "$CF_DIR/automatic_update.sh" nextdnsUrl)
+        cf_token=$(read_var "$CF_DIR/automatic_update.sh" CF_API_TOKEN)
+        cf_zone=$(read_var "$CF_DIR/automatic_update.sh" CF_ZONE_ID)
+        cf_rec=$(read_var "$CF_DIR/automatic_update.sh" CF_RECORD_ID)
+        cf_interval=$(sed -n 's/^OnCalendar=\*:0\/\([0-9]*\)$/\1/p' "$CF_DIR/automatic_update.timer" | head -n1)
+
+        if [ -z "$cf_host" ] || [ -z "$cf_token" ] || [ -z "$cf_zone" ] || [ -z "$cf_rec" ]; then
+            echo "❌ Could not read the saved Cloudflare settings, skipping."
+        else
+            curl -fsSL --max-time 60 "$REPO_URL/install_cloudflare.sh" -o "$TMP_DIR/install_cloudflare.sh" && sh "$TMP_DIR/install_cloudflare.sh" "${cf_interval:-5}" "$cf_host" "$cf_nextdns" "$cf_token" "$cf_zone" "$cf_rec"
+        fi
+        echo ""
+    else
+        echo "Cloudflare/NextDNS update is not installed, skipping."
+    fi
+
+    if [ -f "$WG_DIR/wireguard-dns-resolver.sh" ]; then
+        echo "🔄 Updating WireGuard failover (keeping settings)..."
+        wg_if=$(read_var "$WG_DIR/wireguard-dns-resolver.sh" INTERFACE)
+        wg_domain=$(read_var "$WG_DIR/wireguard-dns-resolver.sh" ENDPOINT_DOMAIN)
+        wg_interval=$(sed -n 's/^OnUnitActiveSec=\([0-9]*\)$/\1/p' "$WG_DIR/wg_failover.timer" | head -n1)
+
+        if [ -z "$wg_if" ] || [ -z "$wg_domain" ]; then
+            echo "❌ Could not read the saved WireGuard settings, skipping."
+        else
+            curl -fsSL --max-time 60 "$REPO_URL/install_wg.sh" -o "$TMP_DIR/install_wg.sh" && sh "$TMP_DIR/install_wg.sh" "$wg_if" "$wg_domain" "${wg_interval:-10}"
+        fi
+    else
+        echo "WireGuard failover is not installed, skipping."
+    fi
 }
 
 while true; do
     show_menu
-    echo -n "Select an option [1-4]: "
+    echo -n "Select an option [1-5]: "
     read choice < /dev/tty
     case $choice in
         1)
@@ -68,13 +112,20 @@ while true; do
             read dummy < /dev/tty
             ;;
         3)
-            curl -fsSL --max-time 60 "$REPO_URL/uninstall_all.sh" -o "$TMP_DIR/uninstall_all.sh" && sh "$TMP_DIR/uninstall_all.sh"
+            update_installed
             echo ""
             echo ""
             echo -n "Press Enter to return to menu..."
             read dummy < /dev/tty
             ;;
         4)
+            curl -fsSL --max-time 60 "$REPO_URL/uninstall_all.sh" -o "$TMP_DIR/uninstall_all.sh" && sh "$TMP_DIR/uninstall_all.sh"
+            echo ""
+            echo ""
+            echo -n "Press Enter to return to menu..."
+            read dummy < /dev/tty
+            ;;
+        5)
             exit 0
             ;;
         *)

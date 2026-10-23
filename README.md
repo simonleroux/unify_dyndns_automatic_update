@@ -30,8 +30,9 @@ curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/head
 ```
 1) Install Automatic Cloudflare/NextDNS Update
 2) Install WireGuard Failover
-3) Uninstall All STETNET scripts
-4) Exit
+3) Update installed scripts (keeps your settings)
+4) Uninstall All STETNET scripts
+5) Exit
 ```
 
 ---
@@ -121,7 +122,18 @@ Remove **all** STETNET services and scripts (asks for confirmation):
 curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main/uninstall_all.sh | sh
 ```
 
-Or use menu option 3.
+Or use menu option 4.
+
+---
+
+## 🔄 Updating
+
+To get the latest scripts without re-entering your settings, use menu option 3. It re-downloads the installers and re-runs them with the values already saved on the gateway:
+
+- **Cloudflare/NextDNS:** hostname, NextDNS URL, API token, zone ID, record ID, and interval are read from `automatic_update.sh` and `automatic_update.timer`.
+- **WireGuard:** interface, endpoint domain, and interval are read from `wireguard-dns-resolver.sh` and `wg_failover.timer`.
+
+Only components that are already installed are updated. Each one is skipped if its settings can't be read.
 
 ---
 

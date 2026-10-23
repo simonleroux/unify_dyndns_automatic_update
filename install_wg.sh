@@ -14,12 +14,20 @@ echo ""
 echo "🔍 Detecting available WireGuard interfaces..."
 AVAIL_INTERFACES=$(ip link show | grep -E '^[0-9]+: wg' | cut -d: -f2 | tr -d ' ')
 echo ""
+# Optional arguments (passed by the menu's update option) skip the prompts:
+#   sh install_wg.sh [INTERFACE] [ENDPOINT_DOMAIN] [INTERVAL_SEC]
+INTERFACE="$1"
+ENDPOINT_DOMAIN="$2"
+INTERVAL_SEC="$3"
+
 echo "🔗 Step 1: WireGuard Interface"
-if [ -n "$AVAIL_INTERFACES" ]; then
-    echo "    Available: $AVAIL_INTERFACES"
+if [ -z "$INTERFACE" ]; then
+    if [ -n "$AVAIL_INTERFACES" ]; then
+        echo "    Available: $AVAIL_INTERFACES"
+    fi
+    echo -n "    Enter interface name: "
+    read INTERFACE < /dev/tty
 fi
-echo -n "    Enter interface name: "
-read INTERFACE < /dev/tty
 
 if [ -z "$INTERFACE" ]; then
     echo "❌ Error: Interface name is required."
@@ -48,7 +56,9 @@ echo "✅ Found Endpoint Port: $ENDPOINT_PORT"
 
 echo ""
 echo "🌐 Step 2: Endpoint Domain (e.g., vpn.simonleroux.ca)"
-read -p "    Enter domain: " ENDPOINT_DOMAIN < /dev/tty
+if [ -z "$ENDPOINT_DOMAIN" ]; then
+    read -p "    Enter domain: " ENDPOINT_DOMAIN < /dev/tty
+fi
 
 if [ -z "$ENDPOINT_DOMAIN" ]; then
     echo "❌ Error: Domain is required."
@@ -57,7 +67,9 @@ fi
 
 echo ""
 echo "⏱️  Step 3: Check Interval in seconds (default: 10, recommended: 10-30)"
-read -p "    Enter interval: " INTERVAL_SEC < /dev/tty
+if [ -z "$INTERVAL_SEC" ]; then
+    read -p "    Enter interval: " INTERVAL_SEC < /dev/tty
+fi
 INTERVAL_SEC=${INTERVAL_SEC:-10}
 
 echo ""
