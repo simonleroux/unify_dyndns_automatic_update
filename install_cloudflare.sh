@@ -45,27 +45,36 @@ cat << 'EOF' >> "$SERVICE_DIR/automatic_update.sh"
 printf "Checking if we should change $hostname IP resolution\n"
 
 # Get current public WAN IP
-currentIp=$(curl -s 'api.ipify.org' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
+currentIp=$(curl -s --max-time 10 'https://api.ipify.org' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 
-# Check existing record IP directly via Cloudflare's public resolver
-resolvedIp=$(nslookup $hostname 1.1.1.1 | awk '/^Address: / { print $2 }')
+# Resolve all A records for the hostname via Cloudflare's public resolver
+# (parses the lines after "Name:" so both BIND and busybox nslookup output work)
+resolvedIps=$(nslookup "$hostname" 1.1.1.1 2>/dev/null | sed -n '/^Name/,$p' | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}')
 
-printf "Current IP : $currentIp\nResolved IP : $resolvedIp\n"
+printf "Current IP : $currentIp\nResolved IPs : $(echo $resolvedIps)\n"
+
+# Skip this run if either lookup came back empty
+if [ -z "$currentIp" ] || [ -z "$resolvedIps" ]; then
+    printf "Could not determine current IP or resolve $hostname, skipping this run.\n"
+    exit 1
+fi
 
 # ==========================================
 # UPDATE IF MISMATCHED
 # ==========================================
-if [ "$currentIp" != "$resolvedIp" ]; then
+if ! echo "$resolvedIps" | grep -qx "$currentIp"; then
     printf "IP addresses do not match, initiating updates...\n"
     
-    # 1. Update NextDNS
-    printf "Updating NextDNS...\n"
-    curl -s "$nextdnsUrl"
-    printf "\n"
+    # 1. Update NextDNS (skipped if no NextDNS URL was given)
+    if [ -n "$nextdnsUrl" ]; then
+        printf "Updating NextDNS...\n"
+        curl -s --max-time 10 "$nextdnsUrl"
+        printf "\n"
+    fi
 
     # 2. Update Cloudflare DNS
     printf "Updating Cloudflare...\n"
-    cfResponse=$(curl -s --request PATCH \
+    cfResponse=$(curl -s --max-time 10 --request PATCH \
       --url "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records/$CF_RECORD_ID" \
       --header "Authorization: Bearer $CF_API_TOKEN" \
       --header "Content-Type: application/json" \

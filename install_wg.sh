@@ -84,7 +84,8 @@ ENDPOINT_PORT="$ENDPOINT_PORT"
 export LC_ALL=C
 
 # 1. Resolve the target domain name to get the expected IP
-EXPECTED_IP=\$(nslookup "\$ENDPOINT_DOMAIN" 1.1.1.1 | awk '/^Address: / { print \$2 }' | head -n1)
+# (parses the lines after "Name:" so both BIND and busybox nslookup output work)
+EXPECTED_IP=\$(nslookup "\$ENDPOINT_DOMAIN" 1.1.1.1 2>/dev/null | sed -n '/^Name/,\$p' | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -n1)
 
 # Safety check
 if [ -z "\$EXPECTED_IP" ]; then

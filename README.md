@@ -1,72 +1,157 @@
-# STETNET Automatic IP Update for UniFi Devices
+# STETNET Unifi Scripts
 
-Automatically update NextDNS and Cloudflare DNS records on UniFi gateways. This is specifically designed for UniFi devices behind CGNAT or on dynamic IP connections.
+Scripts for UniFi gateways (UCG Ultra, etc.) that keep remote access working when the connection has a dynamic or CGNAT public IP:
+
+- **Automatic Cloudflare/NextDNS update**: keeps a Cloudflare A record and an optional NextDNS link pointed at the current public IP.
+- **WireGuard failover**: checks a WireGuard peer's endpoint against DNS and re-points it when the DNS record changes.
+
+Designed for UniFi OS 4.x and later.
 
 ---
 
 ## ✅ Features
 
-- 🛡️ Automatically checks if public IP matches DNS resolution before updating
-- 🔁 Runs once at boot and every N minutes (default: 5)
-- 🧩 Integrates via `systemd` service and timer
-- 🧼 Fully contained in `/data/STETNET/automatic_update`
-- 🔄 Supports NextDNS and Cloudflare API (A Records)
-- 🧠 Designed and tested for UniFi OS Version >4.x (UCG Ultra, etc.)
+- 🛡️ Only updates DNS when the current public IP differs from what DNS resolves to
+- 🔁 Runs once at boot and then on a fixed interval, via `systemd` service and timer
+- 🧩 Interactive menu for installing, uninstalling, and checking status
+- 🧼 Each script keeps its files in its own folder under `/data/STETNET/`
+- 🔄 Supports Cloudflare DNS (A records) and NextDNS update links
 
 ---
 
-## 🚀 Installation
+## 🚀 Quick Start (Menu)
 
-To install, pipe the script to `sh` and provide your configuration as arguments:
+Run the menu on the gateway over SSH:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_dyndns_automatic_update/main/install.sh | sh -s -- [INTERVAL] [HOSTNAME] [NEXTDNS_URL] [CF_TOKEN] [CF_ZONE_ID] [CF_RECORD_ID]
+curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main/menu.sh | sh
 ```
 
-### Example (Every 5 minutes):
-```bash
-curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_dyndns_automatic_update/main/install.sh | sh -s -- 5 "my.home.com" "https://link-to-nextdns.io/update" "your_cf_token" "zone_id" "record_id"
 ```
+1) Install Automatic Cloudflare/NextDNS Update
+2) Install WireGuard Failover
+3) Uninstall All STETNET scripts
+4) Exit
+```
+
+---
+
+## 🌐 Cloudflare / NextDNS Update
+
+### Before you start
+
+You need:
+
+- **Hostname**: the fully qualified name to update, e.g. `home.example.com`. The DNS record must already exist as an A record.
+- **Cloudflare API token** with *Zone → DNS → Edit* permission. Create one at https://dash.cloudflare.com/profile/api-tokens
+- **Zone ID**: shown in the right sidebar of the domain's Overview page.
+- **Record ID**: the ID of the A record for the hostname, from the DNS Records page.
+- **NextDNS update URL** (optional): e.g. `https://link-XXXXX.nextdns.io/YYYY`. Leave blank to skip NextDNS.
+
+### Install
+
+Use the menu (option 1), or run the installer directly:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main/install_cloudflare.sh | sh -s -- [INTERVAL] [HOSTNAME] [NEXTDNS_URL] [CF_TOKEN] [CF_ZONE_ID] [CF_RECORD_ID]
+```
+
+| Argument | Description | Default |
+|---|---|---|
+| `INTERVAL` | Minutes between checks | `5` |
+| `HOSTNAME` | Hostname to keep updated | (required) |
+| `NEXTDNS_URL` | NextDNS update link | (blank = skip) |
+| `CF_TOKEN` | Cloudflare API token | (required) |
+| `CF_ZONE_ID` | Cloudflare zone ID | (required) |
+| `CF_RECORD_ID` | Cloudflare record ID | (required) |
+
+Example (every 5 minutes):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main/install_cloudflare.sh | sh -s -- 5 "home.example.com" "https://link-XXXXX.nextdns.io/YYYY" "your_cf_token" "zone_id" "record_id"
+```
+
+### How it works
+
+Each run:
+
+1. Gets the current public IP from `api.ipify.org`.
+2. Resolves the hostname through `1.1.1.1`.
+3. If the two differ, updates NextDNS (if configured) and then the Cloudflare A record.
+
+### Files
+
+Installed to `/data/STETNET/automatic_update/`:
+
+- `automatic_update.sh`: the update script. It contains your API token, so restrict it: `chmod 600 /data/STETNET/automatic_update/automatic_update.sh`
+- `automatic_update.service` / `automatic_update.timer`: systemd units (symlinked into `/etc/systemd/system/`)
+- `status.sh`: health check (see below)
+
+---
+
+## 🔀 WireGuard Failover
+
+Menu option 2 installs a check for a WireGuard peer whose endpoint is a domain name. The check resolves the domain and, if the peer's endpoint IP no longer matches, sets the peer's endpoint to the new IP and restarts the interface.
+
+You need:
+
+- The WireGuard interface name (e.g. `wgclt2`). The interface must be up, because the installer reads the peer's public key and endpoint from it.
+- The endpoint domain (e.g. `vpn.example.com`).
+- A check interval in seconds (default `10`; `10`–`30` recommended).
+
+Installed to `/data/STETNET/wg_failover/`:
+
+- `wireguard-dns-resolver.sh`: the check script
+- `wg_failover.service` / `wg_failover.timer`: systemd units
+- `status.sh`: health check
 
 ---
 
 ## 🧼 Uninstallation
 
-To completely remove the service, timer, and configuration:
+Remove the Cloudflare/NextDNS update only:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_dyndns_automatic_update/main/uninstall.sh | sh
+curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main/uninstall.sh | sh
 ```
+
+Remove **all** STETNET services and scripts (asks for confirmation):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main/uninstall_all.sh | sh
+```
+
+Or use menu option 3.
 
 ---
 
 ## 🩺 Check Health
 
-A helper script is included to monitor status:
-
 ```bash
-sh /data/STETNET/automatic_update/status.sh
+sh /data/STETNET/automatic_update/status.sh   # Cloudflare/NextDNS update
+sh /data/STETNET/wg_failover/status.sh        # WireGuard failover
 ```
 
-This shows:
-- Service & timer status
-- Time remaining until next update
-- Last execution logs and API responses
+These show:
+
+- Service and timer status
+- Next scheduled timer trigger
+- Logs from the most recent service run
 
 ---
 
-## 🛠️ Systemd Service Controls
+## 🛠️ Systemd Controls
 
-Manage the update service manually:
+Replace `automatic_update` with `wg_failover` for the WireGuard check.
 
 ```bash
-# Run the update script immediately
+# Run the update immediately
 systemctl start automatic_update.service
 
-# View current status
+# View service status
 systemctl status automatic_update.service
 
-# Stop/Start the periodic timer
+# Stop/start the periodic timer
 systemctl stop automatic_update.timer
 systemctl start automatic_update.timer
 
