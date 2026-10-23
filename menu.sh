@@ -7,29 +7,29 @@ show_menu() {
     echo "====================================="
     echo "1) Install Automatic Cloudflare/NextDNS Update"
     echo "2) Install WireGuard Failover"
-    echo "3) Uninstall All"
+    echo "3) Uninstall All STETNET scripts"
     echo "4) Exit"
     echo "====================================="
 }
 
 while true; do
     show_menu
-    read -p "Select an option [1-4]: " choice
+    read -p "Select an option [1-4]: " choice < /dev/tty
     case $choice in
         1)
             # Interactive installation for Cloudflare/NextDNS
             echo "Enter interval (minutes): "
-            read INTERVAL
+            read -r INTERVAL < /dev/tty
             echo "Enter Hostname: "
-            read HOSTNAME
+            read -r HOSTNAME < /dev/tty
             echo "Enter NextDNS URL: "
-            read NEXTDNS_URL
+            read -r NEXTDNS_URL < /dev/tty
             echo "Enter CF Token: "
-            read CF_TOKEN
+            read -r CF_TOKEN < /dev/tty
             echo "Enter CF Zone ID: "
-            read CF_ZONE
+            read -r CF_ZONE < /dev/tty
             echo "Enter CF Record ID: "
-            read CF_REC
+            read -r CF_REC < /dev/tty
             ./install_cloudflare.sh "$INTERVAL" "$HOSTNAME" "$NEXTDNS_URL" "$CF_TOKEN" "$CF_ZONE" "$CF_REC"
             ;;
         2)
