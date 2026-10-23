@@ -18,18 +18,31 @@ while true; do
     case $choice in
         1)
             # Interactive installation for Cloudflare/NextDNS
-            echo "Enter interval (minutes): "
-            read -r INTERVAL < /dev/tty
-            echo "Enter Hostname: "
-            read -r HOSTNAME < /dev/tty
-            echo "Enter NextDNS URL: "
-            read -r NEXTDNS_URL < /dev/tty
-            echo "Enter CF Token: "
-            read -r CF_TOKEN < /dev/tty
-            echo "Enter CF Zone ID: "
-            read -r CF_ZONE < /dev/tty
-            echo "Enter CF Record ID: "
-            read -r CF_REC < /dev/tty
+            echo ""
+            echo "📝 Cloudflare/NextDNS Configuration"
+            echo "===================================="
+            echo ""
+            echo "⏱️  INTERVAL (minutes): How often to check IP (e.g., 5)"
+            read -p "    Enter interval [default: 5]: " INTERVAL < /dev/tty
+            INTERVAL=${INTERVAL:-5}
+            echo ""
+            echo "🌐 HOSTNAME: Your fully qualified domain name (e.g., home.example.com)"
+            read -p "    Enter hostname: " HOSTNAME < /dev/tty
+            echo ""
+            echo "🔵 NEXTDNS URL: Your update link (optional, e.g., https://link-XXXXX.nextdns.io/YYYY)"
+            read -p "    Enter NextDNS URL (leave blank to skip): " NEXTDNS_URL < /dev/tty
+            echo ""
+            echo "🟠 CLOUDFLARE API TOKEN: Get from https://dash.cloudflare.com/profile/api-tokens (DNS:Edit)"
+            read -p "    Enter API Token: " CF_TOKEN < /dev/tty
+            echo ""
+            echo "🟠 ZONE ID: From Cloudflare Domain Overview (right sidebar)"
+            read -p "    Enter Zone ID: " CF_ZONE < /dev/tty
+            echo ""
+            echo "🟠 RECORD ID: From Cloudflare DNS Records (specific A record for hostname)"
+            read -p "    Enter Record ID: " CF_REC < /dev/tty
+            echo ""
+            echo "🚀 Installing with your configuration..."
+            echo ""
             ./install_cloudflare.sh "$INTERVAL" "$HOSTNAME" "$NEXTDNS_URL" "$CF_TOKEN" "$CF_ZONE" "$CF_REC"
             ;;
         2)
