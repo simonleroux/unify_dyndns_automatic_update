@@ -1,6 +1,5 @@
 #!/bin/sh
-# WireGuard Failover Installer
-# A systemd service/timer package to monitor and re-resolve WireGuard peer endpoints.
+# WireGuard Failover Installer - Smart Auto-Detection Version
 
 SERVICE_DIR="/data/STETNET/wg_failover"
 SERVICE_NAME="wg_failover.service"
@@ -8,15 +7,60 @@ TIMER_NAME="wg_failover.timer"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 TIMER_PATH="/etc/systemd/system/$TIMER_NAME"
 
-echo "🔧 WireGuard Failover Installer"
-echo "------------------------------"
+echo ""
+echo "🔧 WireGuard Failover Installer (Auto-Detection)"
+echo "================================================="
+echo ""
+echo "🔗 Step 1: WireGuard Interface (e.g., wgclt2)"
+read -p "    Enter interface name: " INTERFACE < /dev/tty
 
-read -p "Enter WireGuard Interface (e.g., wgclt2): " INTERFACE < /dev/tty
-read -p "Enter Peer Public Key: " PUBLIC_KEY < /dev/tty
-read -p "Enter Endpoint Domain (e.g., vpn.example.com): " ENDPOINT_DOMAIN < /dev/tty
-read -p "Enter Endpoint Port: " ENDPOINT_PORT < /dev/tty
-read -p "Enter Check Interval in Seconds (default 10): " INTERVAL_SEC < /dev/tty
+if [ -z "$INTERFACE" ]; then
+    echo "❌ Error: Interface name is required."
+    exit 1
+fi
+
+echo ""
+echo "🔍 Extracting configuration from $INTERFACE..."
+WG_CONFIG=$(wg showconf "$INTERFACE" 2>/dev/null)
+
+if [ -z "$WG_CONFIG" ]; then
+    echo "❌ Error: Could not read config. Is interface up?"
+    exit 1
+fi
+
+PUBLIC_KEY=$(echo "$WG_CONFIG" | grep "PublicKey" | head -n1 | cut -d= -f2 | tr -d ' ')
+ENDPOINT_PORT=$(echo "$WG_CONFIG" | grep "Endpoint" | head -n1 | cut -d: -f2 | tr -d ' ')
+
+if [ -z "$PUBLIC_KEY" ]; then
+    echo "❌ Error: Could not find peer public key."
+    exit 1
+fi
+
+echo "✅ Found Peer Public Key: $PUBLIC_KEY"
+echo "✅ Found Endpoint Port: $ENDPOINT_PORT"
+
+echo ""
+echo "🌐 Step 2: Endpoint Domain (e.g., vpn.example.com)"
+read -p "    Enter domain: " ENDPOINT_DOMAIN < /dev/tty
+
+if [ -z "$ENDPOINT_DOMAIN" ]; then
+    echo "❌ Error: Domain is required."
+    exit 1
+fi
+
+echo ""
+echo "⏱️  Step 3: Check Interval in seconds (default: 10, recommended: 10-30)"
+read -p "    Enter interval: " INTERVAL_SEC < /dev/tty
 INTERVAL_SEC=${INTERVAL_SEC:-10}
+
+echo ""
+echo "🔧 Installing with:"
+echo "    Interface: $INTERFACE"
+echo "    Public Key: $PUBLIC_KEY"
+echo "    Domain: $ENDPOINT_DOMAIN"
+echo "    Port: $ENDPOINT_PORT"
+echo "    Interval: $INTERVAL_SEC seconds"
+echo ""
 
 mkdir -p "$SERVICE_DIR"
 
