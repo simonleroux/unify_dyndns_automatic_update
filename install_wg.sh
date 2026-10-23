@@ -11,8 +11,16 @@ echo ""
 echo "🔧 WireGuard Failover Installer (Auto-Detection)"
 echo "================================================="
 echo ""
-echo "🔗 Step 1: WireGuard Interface (e.g., wgclt2)"
-read -p "    Enter interface name: " INTERFACE < /dev/tty
+echo "🔍 Detecting available WireGuard interfaces..."
+AVAIL_INTERFACES=$(ip link show | grep -E '^[0-9]+: wg' | cut -d: -f2 | tr -d ' ')
+echo ""
+echo "🔗 Step 1: WireGuard Interface"
+if [ -n "$AVAIL_INTERFACES" ]; then
+    echo "    Available: $AVAIL_INTERFACES"
+fi
+echo "    Example: wgclt2"
+echo -n "    Enter interface name: "
+read INTERFACE < /dev/tty
 
 if [ -z "$INTERFACE" ]; then
     echo "❌ Error: Interface name is required."
@@ -40,7 +48,7 @@ echo "✅ Found Peer Public Key: $PUBLIC_KEY"
 echo "✅ Found Endpoint Port: $ENDPOINT_PORT"
 
 echo ""
-echo "🌐 Step 2: Endpoint Domain (e.g., vpn.example.com)"
+echo "🌐 Step 2: Endpoint Domain (e.g., vpn.simonleroux.ca)"
 read -p "    Enter domain: " ENDPOINT_DOMAIN < /dev/tty
 
 if [ -z "$ENDPOINT_DOMAIN" ]; then
