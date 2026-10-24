@@ -115,7 +115,7 @@ else
     echo "Tunnel is UNHEALTHY. DNS says \$EXPECTED_IP, WireGuard is pointing to \$CURRENT_IP."
     echo "Realigning endpoint to \$EXPECTED_IP:\$ENDPOINT_PORT..."
     wg set "\$INTERFACE" peer "\$PUBLIC_KEY" endpoint "\$EXPECTED_IP:\$ENDPOINT_PORT"
-    ip link set "\$INTERFACE" down && sleep 1 && ip link set "\$INTERFACE" up
+    wg syncconf "\$INTERFACE" <(wg showconf "\$INTERFACE")
 fi
 EOF
 
