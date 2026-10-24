@@ -1,5 +1,6 @@
 #!/bin/sh
 # Unifi Leroux Automatic update Installer with customizable interval
+VERSION="1.0.0"
 
 SERVICE_DIR="/data/STETNET/automatic_update"
 SERVICE_NAME="automatic_update.service"
@@ -24,6 +25,7 @@ NC="\033[0m" # No Color
 echo "🔧 Writing Leroux Automatic update script..."
 cat << EOF > "$SERVICE_DIR/automatic_update.sh"
 #!/bin/bash
+# Version: $VERSION
 
 # ==========================================
 # CONFIGURATION
@@ -143,6 +145,7 @@ NC="\033[0m"
 
 echo ""
 echo "🔍 \${YELLOW}STETNET Overall Automatic updater Status\${NC}"
+echo "Version: $VERSION"
 echo "---------------------------------------"
 
 echo ""

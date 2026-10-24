@@ -1,5 +1,6 @@
 #!/bin/sh
 # WireGuard Failover Installer - Smart Auto-Detection Version
+VERSION="1.0.0"
 
 SERVICE_DIR="/data/STETNET/wg_failover"
 SERVICE_NAME="wg_failover.service"
@@ -86,6 +87,7 @@ mkdir -p "$SERVICE_DIR"
 echo "🔧 Writing WireGuard Failover script..."
 cat << EOF > "$SERVICE_DIR/wireguard-dns-resolver.sh"
 #!/bin/bash
+# Version: $VERSION
 # Dedicated WireGuard Dynamic Endpoint Resolver
 # ==================== CONFIGURATION ====================
 INTERFACE="$INTERFACE"
@@ -168,6 +170,7 @@ YELLOW="\033[1;33m"
 NC="\033[0m"
 echo ""
 echo "\${YELLOW}🔍 STETNET WireGuard Failover Status\${NC}"
+echo "Version: $VERSION"
 echo "======================================="
 echo ""
 echo "📦 Service Status:"

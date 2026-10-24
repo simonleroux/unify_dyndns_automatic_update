@@ -1,5 +1,6 @@
 #!/bin/sh
 # Unifi_scripts Main Menu
+VERSION="1.0.0"
 
 REPO_URL="https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main"
 TMP_DIR="/tmp/stetnet_scripts"
@@ -7,9 +8,28 @@ CF_DIR="/data/STETNET/automatic_update"
 WG_DIR="/data/STETNET/wg_failover"
 mkdir -p "$TMP_DIR"
 
+# Version written into a generated file ("# Version: x.y.z"), or a status word
+installed_version() {
+    if [ -f "$1" ]; then
+        v=$(sed -n 's/^# Version: //p' "$1" | head -n1)
+        echo "${v:-unknown (older install)}"
+    else
+        echo "not installed"
+    fi
+}
+
+# VERSION as published on the server (GitHub) for one of the repo's files
+server_version() {
+    v=$(curl -fsSL --max-time 10 "$REPO_URL/$1" 2>/dev/null | tr -d '\r' | sed -n 's/^VERSION="\(.*\)"$/\1/p' | head -n1)
+    echo "${v:-unavailable}"
+}
+
 show_menu() {
     echo "====================================="
     echo "       STETNET Unifi Scripts         "
+    echo "       Menu version: $VERSION        "
+    echo "       Cloudflare: $(installed_version "$CF_DIR/automatic_update.sh")"
+    echo "       WireGuard:  $(installed_version "$WG_DIR/wireguard-dns-resolver.sh")"
     echo "====================================="
     echo "1) Install Automatic Cloudflare/NextDNS Update"
     echo "2) Install WireGuard Failover"
@@ -27,8 +47,12 @@ read_var() {
 }
 
 update_installed() {
+    echo "Menu: installed $VERSION, server $(server_version menu.sh)"
+    echo ""
+
     if [ -f "$CF_DIR/automatic_update.sh" ]; then
         echo "🔄 Updating Cloudflare/NextDNS update (keeping settings)..."
+        echo "   installed: $(installed_version "$CF_DIR/automatic_update.sh"), server: $(server_version install_cloudflare.sh)"
         cf_host=$(read_var "$CF_DIR/automatic_update.sh" hostname)
         cf_nextdns=$(read_var "$CF_DIR/automatic_update.sh" nextdnsUrl)
         cf_token=$(read_var "$CF_DIR/automatic_update.sh" CF_API_TOKEN)
@@ -48,6 +72,7 @@ update_installed() {
 
     if [ -f "$WG_DIR/wireguard-dns-resolver.sh" ]; then
         echo "🔄 Updating WireGuard failover (keeping settings)..."
+        echo "   installed: $(installed_version "$WG_DIR/wireguard-dns-resolver.sh"), server: $(server_version install_wg.sh)"
         wg_if=$(read_var "$WG_DIR/wireguard-dns-resolver.sh" INTERFACE)
         wg_domain=$(read_var "$WG_DIR/wireguard-dns-resolver.sh" ENDPOINT_DOMAIN)
         wg_interval=$(sed -n 's/^OnUnitActiveSec=\([0-9]*\)$/\1/p' "$WG_DIR/wg_failover.timer" | head -n1)

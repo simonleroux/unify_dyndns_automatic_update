@@ -1,5 +1,6 @@
 #!/bin/sh
 # STETNET Unifi_scripts Uninstaller
+VERSION="1.0.0"
 
 echo "⚠️ This will remove ALL STETNET services and scripts."
 read -p "Are you sure? [y/N]: " confirm < /dev/tty

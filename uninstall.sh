@@ -1,5 +1,6 @@
 #!/bin/sh
 # automatic_update Uninstaller
+VERSION="1.0.0"
 
 SERVICE_DIR="/data/STETNET/automatic_update"
 SERVICE_NAME="automatic_update.service"
