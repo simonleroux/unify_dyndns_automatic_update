@@ -31,8 +31,10 @@ curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/head
 1) Install Automatic Cloudflare/NextDNS Update
 2) Install WireGuard Failover
 3) Update installed scripts (keeps your settings)
-4) Uninstall All STETNET scripts
-5) Exit
+4) Pause installed scripts (disable timers)
+5) Resume installed scripts (enable timers)
+6) Uninstall All STETNET scripts
+7) Exit
 ```
 
 ---
@@ -122,7 +124,7 @@ Remove **all** STETNET services and scripts (asks for confirmation):
 curl -fsSL https://raw.githubusercontent.com/simonleroux/unify_scripts/refs/heads/main/uninstall_all.sh | sh
 ```
 
-Or use menu option 4.
+Or use menu option 6.
 
 ---
 
@@ -134,6 +136,15 @@ To get the latest scripts without re-entering your settings, use menu option 3. 
 - **WireGuard:** interface, endpoint domain, and interval are read from `wireguard-dns-resolver.sh` and `wg_failover.timer`.
 
 Only components that are already installed are updated. Each one is skipped if its settings can't be read.
+
+## ⏸️ Pausing and Resuming
+
+To turn off the automatic checks temporarily without uninstalling:
+
+- **Menu option 4 (pause):** disables and stops the timers and services for Cloudflare/NextDNS and WireGuard. They stay off after a reboot.
+- **Menu option 5 (resume):** enables the timers and services again and starts the timers.
+
+Pausing does not delete or change any settings.
 
 ---
 

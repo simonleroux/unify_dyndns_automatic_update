@@ -14,8 +14,10 @@ show_menu() {
     echo "1) Install Automatic Cloudflare/NextDNS Update"
     echo "2) Install WireGuard Failover"
     echo "3) Update installed scripts (keeps your settings)"
-    echo "4) Uninstall All STETNET scripts"
-    echo "5) Exit"
+    echo "4) Pause installed scripts (disable timers)"
+    echo "5) Resume installed scripts (enable timers)"
+    echo "6) Uninstall All STETNET scripts"
+    echo "7) Exit"
     echo "====================================="
 }
 
@@ -60,9 +62,56 @@ update_installed() {
     fi
 }
 
+# Pause: disable and stop the timers and services so they stay off across reboots
+# until resumed. The settings files are left untouched.
+pause_installed() {
+    if [ -f "$CF_DIR/automatic_update.sh" ]; then
+        if systemctl disable --now automatic_update.timer automatic_update.service; then
+            echo "⏸️  Cloudflare/NextDNS update paused."
+        else
+            echo "❌ Could not pause the Cloudflare/NextDNS update."
+        fi
+    else
+        echo "Cloudflare/NextDNS update is not installed, skipping."
+    fi
+
+    if [ -f "$WG_DIR/wireguard-dns-resolver.sh" ]; then
+        if systemctl disable --now wg_failover.timer wg_failover.service; then
+            echo "⏸️  WireGuard failover paused."
+        else
+            echo "❌ Could not pause the WireGuard failover."
+        fi
+    else
+        echo "WireGuard failover is not installed, skipping."
+    fi
+}
+
+# Resume: enable the units again and start the timers
+resume_installed() {
+    if [ -f "$CF_DIR/automatic_update.sh" ]; then
+        if systemctl enable automatic_update.service automatic_update.timer && systemctl start automatic_update.timer; then
+            echo "▶️  Cloudflare/NextDNS update resumed."
+        else
+            echo "❌ Could not resume the Cloudflare/NextDNS update."
+        fi
+    else
+        echo "Cloudflare/NextDNS update is not installed, skipping."
+    fi
+
+    if [ -f "$WG_DIR/wireguard-dns-resolver.sh" ]; then
+        if systemctl enable wg_failover.service wg_failover.timer && systemctl start wg_failover.timer; then
+            echo "▶️  WireGuard failover resumed."
+        else
+            echo "❌ Could not resume the WireGuard failover."
+        fi
+    else
+        echo "WireGuard failover is not installed, skipping."
+    fi
+}
+
 while true; do
     show_menu
-    echo -n "Select an option [1-5]: "
+    echo -n "Select an option [1-7]: "
     read choice < /dev/tty
     case $choice in
         1)
@@ -119,13 +168,27 @@ while true; do
             read dummy < /dev/tty
             ;;
         4)
-            curl -fsSL --max-time 60 "$REPO_URL/uninstall_all.sh" -o "$TMP_DIR/uninstall_all.sh" && sh "$TMP_DIR/uninstall_all.sh"
+            pause_installed
             echo ""
             echo ""
             echo -n "Press Enter to return to menu..."
             read dummy < /dev/tty
             ;;
         5)
+            resume_installed
+            echo ""
+            echo ""
+            echo -n "Press Enter to return to menu..."
+            read dummy < /dev/tty
+            ;;
+        6)
+            curl -fsSL --max-time 60 "$REPO_URL/uninstall_all.sh" -o "$TMP_DIR/uninstall_all.sh" && sh "$TMP_DIR/uninstall_all.sh"
+            echo ""
+            echo ""
+            echo -n "Press Enter to return to menu..."
+            read dummy < /dev/tty
+            ;;
+        7)
             exit 0
             ;;
         *)
